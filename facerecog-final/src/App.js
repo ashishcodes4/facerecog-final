@@ -8,6 +8,7 @@ import Clarifai from 'clarifai';
 import OutputImage from './Components/OutputImage/OutputImage';
 import Rank from './Components/Rank';
 import SignIn from './Components/SignIn';
+import Register from './Components/Register';
 
 const app = new Clarifai.App({
   apiKey: '10e438c98496472ba7d09d2dd56e26ed',
@@ -23,6 +24,7 @@ class App extends Component {
       imageUrl: '',
       box: {},
       route: 'signin',
+      isSignedIn: false
     };
   }
 
@@ -62,18 +64,22 @@ class App extends Component {
   };
 
   onRouteChange = (route) => {
+    if(route=== 'signout') {
+      this.setState({isSignedIn: false})
+    } else if (route=== 'home') {
+      this.setState({isSignedIn: true})
+    }
     this.setState({route: route})
     console.log(route);
+    console.log(this.state.isSignedIn)
   }
 
   render() {
     return (
       <div className="App">
         <TopBar />
-        <Navigation onRouteChange={this.onRouteChange} />
-        {this.state.route === 'signin' ? (
-          <SignIn onRouteChange={this.onRouteChange} />
-        ) : (
+        <Navigation isSingnedIn = {this.state.isSignedIn} onRouteChange={this.onRouteChange} />
+        {this.state.route === 'home' ? (
           <div>
             <Rank />
             <Form
@@ -82,6 +88,9 @@ class App extends Component {
             />
             <OutputImage imageUrl={this.state.imageUrl} box={this.state.box} />
           </div>
+        ) : (
+          this.state.route === 'signin' ? 
+          <SignIn onRouteChange={this.onRouteChange} /> : <Register onRouteChange={this.onRouteChange} />
         )}
       </div>
     );
