@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import TopBar from './Components/TopBar';
 import './App.css';
+import tachyons from 'tachyons';
 import Navigation from './Components/Navigation';
 import Form from './Components/Form';
 import Clarifai from 'clarifai';
-import OutputImage from './Components/OutputImage';
+import OutputImage from './Components/OutputImage/OutputImage';
+import Rank from './Components/Rank';
+import SignIn from './Components/SignIn';
 
 const app = new Clarifai.App({
   apiKey: '10e438c98496472ba7d09d2dd56e26ed',
@@ -17,46 +20,69 @@ class App extends Component {
     super();
     this.state = {
       input: '',
-      imageUrl: ''
+      imageUrl: '',
+      box: {},
+      route: 'signin',
     };
   }
 
   //sysnthetic property for the app...
   onInputChange = event => {
-    this.setState({input: event.target.value})
+    this.setState({ input: event.target.value });
   };
-
 
   onButtonSubmit = () => {
     console.log('click');
-    this.setState({imageUrl: this.state.input})
+    this.setState({ imageUrl: this.state.input });
     app.models
-      .predict(
-        Clarifai.FACE_DETECT_MODEL,
-        'https://www.uni-regensburg.de/Fakultaeten/phil_Fak_II/Psychologie/Psy_II/beautycheck/english/durchschnittsgesichter/m(01-32).jpg'
-      )
-      .then(
-        function(response) {
-          // do something with response
-          console.log(response)
-        },
-        function(err) {
-          // there was an error
-          console.error(err);
-        }
-      );
+      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+      .then(response => this.displayFaceBox(this.boundingbox(response)))
+      .catch(err => {
+        console.log(err);
+      });
   };
+
+  boundingbox = data => {
+    const grid = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById('input-image');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    console.log(grid);
+
+    return {
+      topRow: grid.top_row * height,
+      rightCol: width - grid.right_col * width,
+      bottomRow: height - grid.bottom_row * height,
+      leftCol: grid.left_col * width,
+    };
+  };
+
+  displayFaceBox = box => {
+    this.setState({ box: box });
+  };
+
+  onRouteChange = (route) => {
+    this.setState({route: route})
+    console.log(route);
+  }
 
   render() {
     return (
       <div className="App">
         <TopBar />
-        <Navigation />
-        <Form
-          onInputChange={this.onInputChange}
-          onButtonSubmit={this.onButtonSubmit}
-        />
-        <OutputImage imageUrl={this.state.imageUrl} />
+        <Navigation onRouteChange={this.onRouteChange} />
+        {this.state.route === 'signin' ? (
+          <SignIn onRouteChange={this.onRouteChange} />
+        ) : (
+          <div>
+            <Rank />
+            <Form
+              onInputChange={this.onInputChange}
+              onButtonSubmit={this.onButtonSubmit}
+            />
+            <OutputImage imageUrl={this.state.imageUrl} box={this.state.box} />
+          </div>
+        )}
       </div>
     );
   }

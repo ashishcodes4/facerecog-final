@@ -27,6 +27,7 @@
   to { transform: rotate(360deg); }
 }
 
+.absolute { position: absolute; }
 /* Custom styles here after.... */
 
 .nav-bar {
@@ -61,3 +62,14 @@
 .output-image {
   margin-top:  1em;
 }
+
+.center {
+  display:  flex;
+  justify-content:  center;
+}
+
+.mt2 {
+  margin-top: 2em;
+}
+
+
