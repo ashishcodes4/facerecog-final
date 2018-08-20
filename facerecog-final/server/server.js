@@ -28,7 +28,7 @@ const database = {
 };
 
 app.get('/', (req, res, next) => {
-  res.send(database.users[0].password);
+  res.send(database.users);
 });
 
 //@DESC: '/signin'
@@ -126,11 +126,9 @@ app.listen(port, () => {
 });
 
 /*
-
-        '/'-> show the list of users
+'/'->          -> GET  request to show the list of users
 '/signin'      -> POST request to signin user
 '/register'    -> POST request to register user
 '/profile/:id' -> GET request to get an individual user
-'/image'    -> Update the entries count for user
-
+'/image'       -> PUT request to get the entries count for user
 */
