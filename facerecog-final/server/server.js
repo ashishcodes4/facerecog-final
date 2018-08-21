@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080;
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt-nodejs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -68,6 +69,12 @@ app.post('/signin', (req, res) => {
 //@DESC: Used to sign in users
 app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
+  let secPass;
+  
+  bcrypt.hash(password, null, null, function(err, hash) {
+    console.log(hash);
+  });
+
   const newUser = {
     name: name,
     id: '003',
@@ -77,9 +84,16 @@ app.post('/register', (req, res) => {
     joined: new Date(),
   };
   database.users.push(newUser);
-
   res.json(newUser);
 });
+
+// // Load hash from your password DB.
+// bcrypt.compare('bacon', hash, function(err, res) {
+//   // res == true
+// });
+// bcrypt.compare('veggies', hash, function(err, res) {
+//   // res = false
+// });
 
 //@DESC: '/profile/:id'
 //@Method: GET
