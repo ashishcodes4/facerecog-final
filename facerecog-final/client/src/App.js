@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import TopBar from './Components/TopBar';
 import './App.css';
-import tachyons from 'tachyons';
+import 'tachyons';
 import Navigation from './Components/Navigation';
 import Form from './Components/Form';
 import Clarifai from 'clarifai';

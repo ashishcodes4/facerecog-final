@@ -3,7 +3,10 @@ const app = express();
 const port = process.env.PORT || 8080;
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
 
+
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -70,7 +73,7 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
   let secPass;
-  
+
   bcrypt.hash(password, null, null, function(err, hash) {
     console.log(hash);
   });
