@@ -57,6 +57,9 @@ app.get('/', (req, res, next) => {
 // });
 
 app.post('/signin', (req, res) => {
+    console.log('this is inside the signin route');
+    console.log(database.users[0].email)
+    console.log(database.users[0].password)
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password

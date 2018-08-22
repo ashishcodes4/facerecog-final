@@ -39,6 +39,7 @@ class  Register extends React.Component {
                     className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                     type="text"
                     name="name"
+                    autoComplete="name"
                     id="name"
                   />
                 </div>
@@ -50,6 +51,7 @@ class  Register extends React.Component {
                     className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                     type="email"
                     name="email-address"
+                    autoComplete="email"
                     id="email-address"
                   />
                 </div>
@@ -61,6 +63,7 @@ class  Register extends React.Component {
                     className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                     type="password"
                     name="password"
+                    autoComplete="new-password"
                     id="password"
                   />
                 </div>
