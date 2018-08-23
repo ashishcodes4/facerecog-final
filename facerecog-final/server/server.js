@@ -15,7 +15,7 @@ const database = {
     {
       name: 'Ashish Singh',
       id: '001',
-      email: 'ashish@email.com',
+      email: 'ashishcodes4@gmail.com',
       password: 'apple',
       entries: 0,
       joined: new Date(),
@@ -74,32 +74,19 @@ app.post('/signin', (req, res) => {
 //@Method: POST
 //@DESC: Used to sign in users
 app.post('/register', (req, res) => {
-  const { name, email, password } = req.body;
-  let secPass;
-
-  bcrypt.hash(password, null, null, function(err, hash) {
-    console.log(hash);
-  });
-
-  const newUser = {
-    name: name,
-    id: '003',
-    email: email,
-    password: password,
-    entries: 0,
-    joined: new Date(),
-  };
-  database.users.push(newUser);
-  res.json(newUser);
+ const { name, email, password } = req.body;
+ console.log(name, email, password);
+ database.users.push({
+     id: '003',
+     name: name,
+     password: password,
+     email: email,
+     entries: '0',
+     joined: new Date()
+ })
+ res.json(database.users[database.users.length - 1])
 });
 
-// // Load hash from your password DB.
-// bcrypt.compare('bacon', hash, function(err, res) {
-//   // res == true
-// });
-// bcrypt.compare('veggies', hash, function(err, res) {
-//   // res = false
-// });
 
 //@DESC: '/profile/:id'
 //@Method: GET
