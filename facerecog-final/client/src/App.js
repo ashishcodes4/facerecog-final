@@ -81,6 +81,10 @@ class App extends Component {
       this.setState({ isSignedIn: true });
     }
     console.log(route);
+    console.log(this.state.user.name);
+    console.log(this.state.user.email);
+    console.log(this.state.user.joined);
+    console.log(this.state.user.entries);
   };
 
   loadUser = user => {
@@ -104,7 +108,7 @@ class App extends Component {
         />
         {this.state.route === 'home' ? (
           <div>
-            <Rank />
+            <Rank name={this.state.user.name} entries={this.state.user.entries} />
             <Form
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}
@@ -112,9 +116,9 @@ class App extends Component {
             <OutputImage imageUrl={this.state.imageUrl} box={this.state.box} />
           </div>
         ) : this.state.route === 'signin' ? (
-          <SignIn onRouteChange={this.onRouteChange} />
+          <SignIn onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
         ) : (
-          <Register onRouteChange={this.onRouteChange} />
+          <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
         )}
       </div>
     );
