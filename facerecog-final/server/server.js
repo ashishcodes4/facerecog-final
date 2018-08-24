@@ -4,7 +4,18 @@ const port = process.env.PORT || 8080;
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const knex = require('knex');
 
+const db = knex({
+    client:'pg',
+    connection: {
+        host: '127.0.0.1',
+        user: '',
+        database: 'facerecog'
+    }
+})
+
+db.select('*').from('users');
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,28 +49,11 @@ app.get('/', (req, res, next) => {
 //@DESC: '/signin'
 //@Method: POST
 //@DESC: Used to sign in users
-// app.post('/signin', (req, res) => {
-//   const { email, password } = req.body;
-//   let found = false;
-//   console.log(typeof email, typeof password);
-
-//   database.users.forEach(user => {
-//     if (email === user.email && password === user.password) {
-//       let found = true;
-//      return res.send(user);
-//     }
-//     if (!found) {
-//       return res.status(404).json({
-//         msg: 'No Such User Exists',
-//       });
-//     }
-//   });
-// });
 
 app.post('/signin', (req, res) => {
-    console.log('this is inside the signin route');
-    console.log(database.users[0].email)
-    console.log(database.users[0].password)
+    console.log('server hit');
+    console.log(req.body.email)
+    console.log(req.body.password)
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
@@ -76,15 +70,16 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
  const { name, email, password } = req.body;
  console.log(name, email, password);
- database.users.push({
-     id: '003',
-     name: name,
-     password: password,
-     email: email,
-     entries: '0',
-     joined: new Date()
- })
- res.json(database.users[database.users.length - 1])
+ db('users')
+    .returning('*')
+    .insert({
+        name: name,
+        email: email,
+        joined: new Date(),
+    }).then(response => {
+        console.log(response);
+        res.json(response);
+    }).then()
 });
 
 
