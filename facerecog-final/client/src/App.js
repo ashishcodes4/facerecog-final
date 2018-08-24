@@ -24,7 +24,15 @@ class App extends Component {
       imageUrl: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        name: '',
+        id: '',
+        email: '',
+        password: '',
+        entries: '',
+        joined: '',
+      },
     };
   }
 
@@ -63,23 +71,37 @@ class App extends Component {
     this.setState({ box: box });
   };
 
-  onRouteChange = (route) => {
+  onRouteChange = route => {
     console.log(this.state.route);
     console.log(this.state.isSignedIn);
-    this.setState({route: route})
-    if(route === 'signout') {
-      this.setState({isSignedIn: false})
+    this.setState({ route: route });
+    if (route === 'signout') {
+      this.setState({ isSignedIn: false });
     } else if (route === 'home') {
-      this.setState({isSignedIn: true})
+      this.setState({ isSignedIn: true });
     }
     console.log(route);
-  }
+  };
+
+  loadUser = user => {
+    this.setState({user: {
+      name: user.name,
+      id: user.id,
+      email: user.email,
+      password: user.password,
+      entries: user.entries,
+      joined: user.joined,
+    }});
+  };
 
   render() {
     return (
       <div className="App">
         <TopBar />
-        <Navigation isSingnedIn = {this.state.isSignedIn} onRouteChange={this.onRouteChange} />
+        <Navigation
+          isSingnedIn={this.state.isSignedIn}
+          onRouteChange={this.onRouteChange}
+        />
         {this.state.route === 'home' ? (
           <div>
             <Rank />
@@ -89,9 +111,10 @@ class App extends Component {
             />
             <OutputImage imageUrl={this.state.imageUrl} box={this.state.box} />
           </div>
+        ) : this.state.route === 'signin' ? (
+          <SignIn onRouteChange={this.onRouteChange} />
         ) : (
-          this.state.route === 'signin' ? 
-          <SignIn onRouteChange={this.onRouteChange} /> : <Register onRouteChange={this.onRouteChange} />
+          <Register onRouteChange={this.onRouteChange} />
         )}
       </div>
     );

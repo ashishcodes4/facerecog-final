@@ -3,8 +3,9 @@ import React from 'react';
 const Rank = () => {
     return(
         <div>
-        <p>Your current rank is:</p>
-        <p>#5</p>
+        <h3>Hey{this.props.name}, Your current rank is:</h3>
+        
+        <p>{this.props.entries}</p>
         </div>
     );
 }
