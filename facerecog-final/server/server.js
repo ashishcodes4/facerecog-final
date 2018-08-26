@@ -36,6 +36,12 @@ app.get('/', (req, res, next) => {
 
 app.post('/signin', (req, res) => {
   const { email, password } = req.body;
+  if(!email || !password) {
+    return res.status(500).json({
+      msg: 'form values not right',
+      type: 'validation error'
+    })
+  }
   db.select('email', 'hash')
     .from('login')
     .where('email', '=', email)
@@ -70,6 +76,12 @@ app.post('/signin', (req, res) => {
 //@DESC: Used to sign in users
 app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
+  if(!email || !name || !password) {
+    return res.status(500).json({
+      msg: 'form values not right',
+      type: 'validation error'
+    })
+  }
   const hash = bcrypt.hashSync(password);
   console.log(email, name, password);
   console.log(hash);
@@ -103,6 +115,12 @@ app.post('/register', (req, res) => {
 //@DESC: Used to get profile info for a specific ID number...
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
+  if(!id) {
+    return res.status(500).json({
+      msg: 'form values not right',
+      type: 'validation error'
+    })
+  }
   db.select('*')
     .from('users')
     .where({ id })
@@ -126,6 +144,12 @@ app.get('/profile/:id', (req, res) => {
 //@DESC: Update the count of entries in the db....
 app.put('/image', (req, res) => {
   const { id } = req.body;
+  if(!id) {
+    return res.status(500).json({
+      msg: 'form values not right',
+      type: 'validation error'
+    })
+  }
   db('users').where({id})
   .increment('entries', 1)
   .returning('entries')
