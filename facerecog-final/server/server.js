@@ -45,7 +45,7 @@ app.post('/signin', (req, res) => {
         return db
           .select('*')
           .from('users')
-          .where('email', '=', email)
+          .where({ email })
           .then(user => {
             res.json(user[0]);
           })
@@ -61,8 +61,8 @@ app.post('/signin', (req, res) => {
       res.status(400).json({
         error: 'can not find email in db',
         type: 'server, DB side error',
-      })
-    })
+      });
+    });
 });
 
 //@DESC: '/register'
@@ -103,19 +103,22 @@ app.post('/register', (req, res) => {
 //@DESC: Used to get profile info for a specific ID number...
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
-  let found = false;
-  console.log(id);
-  database.users.forEach(user => {
-    if (user.id === id) {
-      let found = true;
-      return res.json(user);
-    }
-  });
-  if (!found) {
-    return res.status(404).json({
-      error: 'There is no user profile attached with this ID',
+  db.select('*')
+    .from('users')
+    .where({ id })
+    .then(user => {
+      if (user.length) {
+        res.json(user[0]);
+      } else {
+        res.status(400).json({
+          error: 'no user for provided id',
+          type: 'server/db error',
+        });
+      }
+    })
+    .catch(err => {
+      res.status(400).json('unable to register');
     });
-  }
 });
 
 //@DESC: '/image'
@@ -123,24 +126,21 @@ app.get('/profile/:id', (req, res) => {
 //@DESC: Update the count of entries in the db....
 app.put('/image', (req, res) => {
   const { id } = req.body;
-  let found = false;
-  database.users.forEach(user => {
-    if ((user.id = id)) {
-      let found = true;
-      user.entries++;
-      return res.json(user.entries);
-    }
-    if (!found) {
-      res.status(404).json({
-        msg: 'No Such profile exists',
-      });
-    }
-  });
-});
+  db('users').where({id})
+  .increment('entries', 1)
+  .returning('entries')
+  .then(entries => {
+    res.json(entries[0]);
+  })
+  .catch(err => res.status(400).json('unable to get entries'))
+})
+
 
 app.listen(port, () => {
   console.log(`server started listening at port: ${port}`);
 });
+
+//*******Route information******//
 
 /*
 '/'->          -> GET  request to show the list of users

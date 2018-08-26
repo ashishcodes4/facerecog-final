@@ -16,26 +16,29 @@ const app = new Clarifai.App({
   apiKey: '10e438c98496472ba7d09d2dd56e26ed',
 });
 
+//Initial state
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    name: '',
+    id: '',
+    email: '',
+    password: '',
+    entries: '',
+    joined: '',
+  },
+};
+
 //  FACE_DETECT_MODEL
 
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      user: {
-        name: '',
-        id: '',
-        email: '',
-        password: '',
-        entries: '',
-        joined: '',
-      },
-    };
+    this.state = initialState;
   }
 
   //sysnthetic property for the app...
@@ -48,7 +51,23 @@ class App extends Component {
     this.setState({ imageUrl: this.state.input });
     app.models
       .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-      .then(response => this.displayFaceBox(this.boundingbox(response)))
+      .then(response => {
+        if (response) {
+          fetch('http://localhost:8080/image', {
+            method: 'put',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: this.state.user.id,
+            }),
+          })
+            .then(data => data.json())
+            .then(data => {
+              this.setState(Object.assign(this.state.user, { entries: data }));
+            })
+            .catch(console.log)
+        }
+        this.displayFaceBox(this.boundingbox(response));
+      })
       .catch(err => {
         console.log(err);
       });
@@ -78,7 +97,7 @@ class App extends Component {
     console.log(this.state.isSignedIn);
     this.setState({ route: route });
     if (route === 'signout') {
-      this.setState({ isSignedIn: false });
+      this.setState(initialState);
     } else if (route === 'home') {
       this.setState({ isSignedIn: true });
     }
@@ -90,14 +109,16 @@ class App extends Component {
   };
 
   loadUser = user => {
-    this.setState({user: {
-      name: user.name,
-      id: user.id,
-      email: user.email,
-      password: user.password,
-      entries: user.entries,
-      joined: user.joined,
-    }});
+    this.setState({
+      user: {
+        name: user.name,
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        entries: user.entries,
+        joined: user.joined,
+      },
+    });
   };
 
   render() {
@@ -110,7 +131,10 @@ class App extends Component {
         />
         {this.state.route === 'home' ? (
           <div>
-            <Rank name={this.state.user.name} entries={this.state.user.entries} />
+            <Rank
+              name={this.state.user.name}
+              entries={this.state.user.entries}
+            />
             <Form
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}
@@ -120,7 +144,10 @@ class App extends Component {
         ) : this.state.route === 'signin' ? (
           <SignIn onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
         ) : (
-          <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+          <Register
+            onRouteChange={this.onRouteChange}
+            loadUser={this.loadUser}
+          />
         )}
       </div>
     );
