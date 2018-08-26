@@ -9,6 +9,8 @@ import OutputImage from './Components/OutputImage/OutputImage';
 import Rank from './Components/Rank';
 import SignIn from './Components/SignIn';
 import Register from './Components/Register';
+import Card from './Components/Profile/Card';
+import Users from './Components/Profile/Users';
 
 const app = new Clarifai.App({
   apiKey: '10e438c98496472ba7d09d2dd56e26ed',

@@ -7,43 +7,27 @@ const cors = require('cors');
 const knex = require('knex');
 
 const db = knex({
-    client:'pg',
-    connection: {
-        host: '127.0.0.1',
-        user: '',
-        database: 'facerecog'
-    }
-})
+  client: 'pg',
+  connection: {
+    host: '127.0.0.1',
+    user: '',
+    database: 'facerecog',
+  },
+});
 
 db.select('*').from('users');
 
-app.use(cors())
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const database = {
-  users: [
-    {
-      name: 'Ashish Singh',
-      id: '001',
-      email: 'ashishcodes4@gmail.com',
-      password: 'apple',
-      entries: 0,
-      joined: new Date(),
-    },
-    {
-      name: 'Rtik Rishu',
-      id: '002',
-      email: 'Ritik@email.com',
-      password: 'bananas',
-      entries: 0,
-      joined: new Date(),
-    },
-  ],
-};
-
 app.get('/', (req, res, next) => {
-  res.send(database.users);
+  db('users')
+    .returning('*')
+    .then(response => {
+      console.log(response);
+      res.json(response);
+    });
 });
 
 //@DESC: '/signin'
@@ -51,37 +35,68 @@ app.get('/', (req, res, next) => {
 //@DESC: Used to sign in users
 
 app.post('/signin', (req, res) => {
-    console.log('server hit');
-    console.log(req.body.email)
-    console.log(req.body.password)
-  if (
-    req.body.email === database.users[0].email &&
-    req.body.password === database.users[0].password
-  ) {
-    res.json(database.users[0]);
-  } else {
-    res.status(404).json('error logging in');
-  }
+  const { email, password } = req.body;
+  db.select('email', 'hash')
+    .from('login')
+    .where('email', '=', email)
+    .then(data => {
+      const isValid = bcrypt.compareSync(password, data[0].hash);
+      if (isValid) {
+        return db
+          .select('*')
+          .from('users')
+          .where('email', '=', email)
+          .then(user => {
+            res.json(user[0]);
+          })
+          .catch(err => {
+            res.status(400).json({
+              error: 'error finding credential',
+              type: 'server side error',
+            });
+          });
+      }
+    })
+    .catch(err => {
+      res.status(400).json({
+        error: 'can not find email in db',
+        type: 'server, DB side error',
+      })
+    })
 });
 
 //@DESC: '/register'
 //@Method: POST
 //@DESC: Used to sign in users
 app.post('/register', (req, res) => {
- const { name, email, password } = req.body;
- console.log(name, email, password);
- db('users')
-    .returning('*')
-    .insert({
-        name: name,
+  const { email, name, password } = req.body;
+  const hash = bcrypt.hashSync(password);
+  console.log(email, name, password);
+  console.log(hash);
+  db.transaction(trx => {
+    trx
+      .insert({
+        hash: hash,
         email: email,
-        joined: new Date(),
-    }).then(response => {
-        console.log(response);
-        res.json(response);
-    }).then()
+      })
+      .into('login')
+      .returning('email')
+      .then(loginEmail => {
+        return trx('users')
+          .returning('*')
+          .insert({
+            email: loginEmail[0],
+            name: name,
+            joined: new Date(),
+          })
+          .then(user => {
+            res.json(user[0]);
+          });
+      })
+      .then(trx.commit)
+      .catch(trx.rollback);
+  }).catch(err => res.status(400).json('unable to register'));
 });
-
 
 //@DESC: '/profile/:id'
 //@Method: GET
