@@ -30,6 +30,15 @@ app.get('/', (req, res, next) => {
     });
 });
 
+//*******Route information******//
+/*
+'/'->          -> GET  request to show the list of users
+'/signin'      -> POST request to signin user
+'/register'    -> POST request to register user
+'/profile/:id' -> GET request to get an individual user
+'/image'       -> PUT request to get the entries count for user
+*/
+
 //@DESC: '/signin'
 //@Method: POST
 //@DESC: Used to sign in users
@@ -165,7 +174,6 @@ app.listen(port, () => {
 });
 
 //*******Route information******//
-
 /*
 '/'->          -> GET  request to show the list of users
 '/signin'      -> POST request to signin user
